@@ -223,7 +223,8 @@ public class Client extends javax.swing.JFrame {
             }
         });
         try {
-            s = new Socket(InetAddress.getLocalHost(), 3000);
+            InetAddress addr = InetAddress.getByName("192.168.2.200");
+            s = new Socket(addr.getHostAddress(), 3000);
             din = new DataInputStream(s.getInputStream());
             dout = new DataOutputStream(s.getOutputStream());
             String msg = "";

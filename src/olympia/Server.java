@@ -8,6 +8,7 @@ package olympia;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -34,7 +35,8 @@ public class Server {
     }
 
     private void execute() throws IOException {
-        ServerSocket server = new ServerSocket(port);
+        InetAddress addr = InetAddress.getByName("192.168.2.200");
+        ServerSocket server = new ServerSocket(port,50,addr);
         System.out.println("Server is listening....");
         while (true) {
             Socket socket = server.accept();
@@ -422,6 +424,8 @@ class ReadServer extends Thread {
                                         }
                                     } else {
                                         room.getPlayer().get(playerInRoundIndex).setStatus(FinishRound);
+                                        dos = new DataOutputStream(playerInRound.getSocket().getOutputStream());
+                                        dos.writeUTF("(RemoveAnswerButton)");
                                         check = true;
                                         for (Player item : room.getPlayer()) {
                                             dos = new DataOutputStream(item.getSocket().getOutputStream());
