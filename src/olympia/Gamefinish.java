@@ -212,9 +212,7 @@ public class Gamefinish extends javax.swing.JFrame {
     private void msgContinueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_msgContinueActionPerformed
         try {
             String msgout = "(continue)";
-            System.out.println("test1");
             dout.writeUTF(msgout);
-            System.out.println("test2");
         } catch (IOException ex) {
             Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
         }

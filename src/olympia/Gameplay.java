@@ -11,7 +11,10 @@ import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import static olympia.Client.dout;
+import static olympia.Client.stopwatch;
+import static olympia.Client.timeprocess;
 
 /**
  *
@@ -34,20 +37,12 @@ public class Gameplay extends javax.swing.JFrame {
         this.msgAnswerAccept = msgAnswerAccept;
     }
 
-    public JButton getMsgAnswerDeny() {
-        return msgAnswerDeny;
-    }
-
     public JLabel getMsgRound() {
         return msgRound;
     }
 
     public void setMsgRound(JLabel msgRound) {
         this.msgRound = msgRound;
-    }
-
-    public void setMsgAnswerDeny(JButton msgAnswerDeny) {
-        this.msgAnswerDeny = msgAnswerDeny;
     }
 
     public JButton getMsgHopestarNo() {
@@ -72,6 +67,14 @@ public class Gameplay extends javax.swing.JFrame {
 
     public void setMsgScore1(JLabel msgScore1) {
         this.msgScore1 = msgScore1;
+    }
+
+    public JTextField getMsgAnswerText() {
+        return msgAnswerText;
+    }
+
+    public void setMsgAnswerText(JTextField msgAnswerText) {
+        this.msgAnswerText = msgAnswerText;
     }
 
     public JLabel getMsgScore2() {
@@ -162,6 +165,22 @@ public class Gameplay extends javax.swing.JFrame {
         this.msgQuizQuestion = msgQuizQuestion;
     }
 
+    public JLabel getMsgPlayerName() {
+        return msgPlayerName;
+    }
+
+    public void setMsgPlayerName(JLabel msgPlayerName) {
+        this.msgPlayerName = msgPlayerName;
+    }
+
+    public JLabel getMsgTime() {
+        return msgTime;
+    }
+
+    public void setMsgTime(JLabel msgTime) {
+        this.msgTime = msgTime;
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -171,7 +190,7 @@ public class Gameplay extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        msgText = new javax.swing.JTextField();
+        msgAnswerText = new javax.swing.JTextField();
         msgAnswer = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -193,16 +212,25 @@ public class Gameplay extends javax.swing.JFrame {
         msgCorrectAnswer = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         msgAnswerAccept = new javax.swing.JButton();
-        msgAnswerDeny = new javax.swing.JButton();
         jLabel6 = new javax.swing.JLabel();
         msgHopestarYes = new javax.swing.JButton();
         msgHopestarNo = new javax.swing.JButton();
         jLabel9 = new javax.swing.JLabel();
         msgRound = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
+        msgPlayerName = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
+        msgTime = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setFont(new java.awt.Font("Segoe Print", 1, 24)); // NOI18N
 
-        msgText.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        msgAnswerText.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        msgAnswerText.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                msgAnswerTextActionPerformed(evt);
+            }
+        });
 
         msgAnswer.setFont(new java.awt.Font("Segoe Print", 1, 18)); // NOI18N
         msgAnswer.setText("Answer");
@@ -270,14 +298,6 @@ public class Gameplay extends javax.swing.JFrame {
             }
         });
 
-        msgAnswerDeny.setFont(new java.awt.Font("Segoe Print", 1, 18)); // NOI18N
-        msgAnswerDeny.setText("Deny");
-        msgAnswerDeny.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                msgAnswerDenyActionPerformed(evt);
-            }
-        });
-
         jLabel6.setFont(new java.awt.Font("Segoe Print", 1, 18)); // NOI18N
         jLabel6.setText("Hopestar Choice:");
 
@@ -302,6 +322,17 @@ public class Gameplay extends javax.swing.JFrame {
 
         msgRound.setFont(new java.awt.Font("Segoe Print", 1, 16)); // NOI18N
 
+        jLabel10.setFont(new java.awt.Font("Segoe Print", 1, 18)); // NOI18N
+        jLabel10.setText("Your Name:");
+
+        msgPlayerName.setFont(new java.awt.Font("Segoe Print", 1, 16)); // NOI18N
+
+        jLabel11.setFont(new java.awt.Font("Segoe Print", 1, 18)); // NOI18N
+        jLabel11.setText("Time :");
+
+        msgTime.setFont(new java.awt.Font("Segoe Print", 1, 18)); // NOI18N
+        msgTime.setForeground(new java.awt.Color(255, 0, 0));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -313,8 +344,6 @@ public class Gameplay extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(15, 15, 15)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel4)
-                    .addComponent(jLabel5)
                     .addComponent(jLabel2)
                     .addComponent(jLabel8)
                     .addComponent(msgQuizHopeStar)
@@ -322,59 +351,69 @@ public class Gameplay extends javax.swing.JFrame {
                         .addComponent(msgQuizPoint)
                         .addComponent(msgQuizNumber))
                     .addComponent(jLabel6)
-                    .addComponent(jLabel1))
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel5)
+                    .addComponent(jLabel10)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup()
+                            .addGap(11, 11, 11)
+                            .addComponent(jLabel11)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(msgTime))
+                        .addComponent(jLabel4)))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane2)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(msgCorrectAnswer)
-                                    .addComponent(msgLastAnswer))
-                                .addGap(0, 0, Short.MAX_VALUE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(msgPackage)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(jLabel9))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGap(0, 0, Short.MAX_VALUE)
-                                        .addComponent(jLabel7)))
-                                .addGap(18, 18, 18)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(msgTurn)
-                                    .addComponent(msgRound))
-                                .addGap(69, 69, 69))))
-                    .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(28, 28, 28)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(msgText, javax.swing.GroupLayout.PREFERRED_SIZE, 326, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jScrollPane2)
                                     .addGroup(layout.createSequentialGroup()
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(msgCorrectAnswer)
+                                            .addComponent(msgLastAnswer))
+                                        .addGap(0, 0, Short.MAX_VALUE))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addComponent(msgPackage)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addComponent(jLabel9))
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addComponent(msgPlayerName)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addComponent(jLabel7)))
+                                        .addGap(18, 18, 18)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(msgTurn)
+                                            .addComponent(msgRound))
+                                        .addGap(69, 69, 69))))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(28, 28, 28)
                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                            .addComponent(msgAnswerAccept)
+                                            .addComponent(msgAnswerText, javax.swing.GroupLayout.PREFERRED_SIZE, 326, javax.swing.GroupLayout.PREFERRED_SIZE)
                                             .addGroup(layout.createSequentialGroup()
                                                 .addComponent(msgHopestarYes)
-                                                .addGap(12, 12, 12)))
-                                        .addGap(66, 66, 66)
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(msgHopestarNo)
-                                            .addComponent(msgAnswerDeny))
-                                        .addGap(29, 29, 29)))
-                                .addGap(30, 30, 30)
-                                .addComponent(msgAnswer))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(49, 49, 49)
-                                .addComponent(msgScore1)
-                                .addGap(49, 49, 49)
-                                .addComponent(msgScore2)
-                                .addGap(54, 54, 54)
-                                .addComponent(msgScore3)))
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addGap(104, 104, 104))
+                                                .addGap(78, 78, 78)
+                                                .addComponent(msgHopestarNo)
+                                                .addGap(51, 51, 51)))
+                                        .addGap(30, 30, 30)
+                                        .addComponent(msgAnswer))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(51, 51, 51)
+                                        .addComponent(msgScore1)
+                                        .addGap(51, 51, 51)
+                                        .addComponent(msgScore2)
+                                        .addGap(50, 50, 50)
+                                        .addComponent(msgScore3)))
+                                .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(104, 104, 104))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(157, 157, 157)
+                        .addComponent(msgAnswerAccept)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -387,22 +426,21 @@ public class Gameplay extends javax.swing.JFrame {
                     .addComponent(msgScore1)
                     .addComponent(msgScore2)
                     .addComponent(msgScore3))
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(msgPackage)
-                            .addComponent(jLabel1)))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel9)
-                            .addComponent(msgRound))))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(msgPackage)
+                        .addComponent(jLabel1))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel9)
+                        .addComponent(msgRound)))
                 .addGap(16, 16, 16)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7)
-                    .addComponent(msgTurn))
-                .addGap(4, 4, 4)
+                    .addComponent(msgTurn)
+                    .addComponent(jLabel10)
+                    .addComponent(msgPlayerName))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(msgLastAnswer))
@@ -423,14 +461,15 @@ public class Gameplay extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(32, 32, 32)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(msgText, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(msgAnswer, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(msgAnswerText, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(msgAnswer, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel11)
+                            .addComponent(msgTime)))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(120, 120, 120)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel4)
-                            .addComponent(msgAnswerAccept)
-                            .addComponent(msgAnswerDeny))
+                            .addComponent(msgAnswerAccept))
                         .addGap(38, 38, 38)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(msgHopestarYes)
@@ -462,31 +501,31 @@ public class Gameplay extends javax.swing.JFrame {
 
     private void msgAnswerAcceptActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_msgAnswerAcceptActionPerformed
         try {
+            dout.writeUTF("(Time)");
             String msgout = "(AnswerChoice)Accept";
             dout.writeUTF(msgout);
+            timeprocess.terminate();
         } catch (IOException ex) {
             Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_msgAnswerAcceptActionPerformed
 
-    private void msgAnswerDenyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_msgAnswerDenyActionPerformed
-        try {
-            String msgout = "(AnswerChoice)Deny";
-            dout.writeUTF(msgout);
-        } catch (IOException ex) {
-            Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }//GEN-LAST:event_msgAnswerDenyActionPerformed
-
     private void msgAnswerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_msgAnswerActionPerformed
         try {
+            dout.writeUTF("(Time)");
             String msgout = "(Answer)";
-            msgout = msgout.concat(msgText.getText().trim());
+            msgout = msgout.concat(msgAnswerText.getText().trim());
             dout.writeUTF(msgout);
+            dout.writeUTF("(SetAnswerTextEmpty)");
+            timeprocess.terminate();
         } catch (IOException ex) {
             Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_msgAnswerActionPerformed
+
+    private void msgAnswerTextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_msgAnswerTextActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_msgAnswerTextActionPerformed
 
     /**
      * @param args the command line arguments
@@ -525,6 +564,8 @@ public class Gameplay extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -536,12 +577,13 @@ public class Gameplay extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JButton msgAnswer;
     private javax.swing.JButton msgAnswerAccept;
-    private javax.swing.JButton msgAnswerDeny;
+    private javax.swing.JTextField msgAnswerText;
     private javax.swing.JLabel msgCorrectAnswer;
     private javax.swing.JButton msgHopestarNo;
     private javax.swing.JButton msgHopestarYes;
     private javax.swing.JLabel msgLastAnswer;
     private javax.swing.JLabel msgPackage;
+    private javax.swing.JLabel msgPlayerName;
     private javax.swing.JLabel msgQuizHopeStar;
     private javax.swing.JLabel msgQuizNumber;
     private javax.swing.JLabel msgQuizPoint;
@@ -550,7 +592,7 @@ public class Gameplay extends javax.swing.JFrame {
     private javax.swing.JLabel msgScore1;
     private javax.swing.JLabel msgScore2;
     private javax.swing.JLabel msgScore3;
-    private javax.swing.JTextField msgText;
+    private javax.swing.JLabel msgTime;
     private javax.swing.JLabel msgTurn;
     // End of variables declaration//GEN-END:variables
 }

@@ -31,6 +31,7 @@ public class QuizModel {
                 quiz.setAnswer(rs.getString("Answer"));
                 quiz.setScore(rs.getInt("Score"));
                 quiz.setHopestar(rs.getBoolean("HopeStar"));
+                quiz.setTime(rs.getInt("Time"));
                 listQuiz.add(quiz);
             }
         } catch (Exception e) {
@@ -55,6 +56,7 @@ public class QuizModel {
                 quiz.setAnswer(rs.getString("Answer"));
                 quiz.setScore(rs.getInt("Score"));
                 quiz.setHopestar(rs.getBoolean("HopeStar"));
+                quiz.setTime(rs.getInt("Time"));
                 listQuiz.add(quiz);
             }
         } catch (Exception e) {

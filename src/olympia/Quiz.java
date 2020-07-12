@@ -14,15 +14,26 @@ public class Quiz {
     private String answer;
     private int score;
     private boolean hopestar;
+    private int time;
 
-    public Quiz(String question, String answer, int score, boolean hopestar) {
+
+    public Quiz(String question, String answer, int score, boolean hopestar, int time) {
         this.question = question;
         this.answer = answer;
         this.score = score;
         this.hopestar = hopestar;
+        this.time = time;
     }
 
     public Quiz() {
+    }
+
+    public int getTime() {
+        return time;
+    }
+
+    public void setTime(int time) {
+        this.time = time;
     }
 
 

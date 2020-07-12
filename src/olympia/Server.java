@@ -36,7 +36,7 @@ public class Server {
 
     private void execute() throws IOException {
         InetAddress addr = InetAddress.getByName("192.168.2.200");
-        ServerSocket server = new ServerSocket(port,50,addr);
+        ServerSocket server = new ServerSocket(port);
         System.out.println("Server is listening....");
         while (true) {
             Socket socket = server.accept();
@@ -86,6 +86,9 @@ class ReadServer extends Thread {
             dis = new DataInputStream(server.getInputStream());
             while (true) {
                 String sms = dis.readUTF();
+                if (!sms.startsWith("(Time)")) {
+                    System.out.println(server + " : " + sms);
+                }
                 if (sms.startsWith("create_")) {
                     String[] smsCreate = sms.split("_");
                     check = true;
@@ -115,11 +118,13 @@ class ReadServer extends Thread {
                         dos.writeUTF("(Player1)" + player.getName());
                         dos.writeUTF("(Player2)");
                         dos.writeUTF("(Player3)");
-                        System.out.println("Client create room successfully: " + room.getName() + " " + player.getSocket().getPort() + " " + player.getName());
+                        System.out.println("Server: Create room successfully ! ");
+                        System.out.println("Server: (PlayerName)" + player.getName());
+                        System.out.println("Server: " + "(RoomName)" + room.getName());
                     } else {
                         DataOutputStream dos = new DataOutputStream(server.getOutputStream());
                         dos.writeUTF("(Create)Fail");
-                        System.out.println("Client create room fail !");
+                        System.out.println("Server: Create room fail");
                     }
                 }
                 if (sms.startsWith("join_")) {
@@ -133,6 +138,7 @@ class ReadServer extends Thread {
                             dos.writeUTF("Success");
                             dos.writeUTF("(Welcome)Welcome to the room ! , " + player.getName() + "\n");
                             dos.writeUTF("(RoomName)" + room.getName());
+
                             for (Player item : room.getPlayer()) {
                                 if (item.getSocket().getPort() != server.getPort()) {
                                     dos = new DataOutputStream(item.getSocket().getOutputStream());
@@ -147,7 +153,9 @@ class ReadServer extends Thread {
                                     }
                                 }
                             }
-                            System.out.println("Client join room successfully: " + room.getName() + " " + player.getSocket().getPort() + " " + player.getName());
+                            System.out.println("Server: Join room successfully ! ");
+                            System.out.println("Server: (PlayerName)" + player.getName());
+                            System.out.println("Server: " + "(RoomName)" + room.getName());
                             check = true;
                             break;
                         }
@@ -155,7 +163,7 @@ class ReadServer extends Thread {
                     if (check == false) {
                         DataOutputStream dos = new DataOutputStream(server.getOutputStream());
                         dos.writeUTF("(Join)Fail");
-                        System.out.println("Client join room fail !");
+                        System.out.println("Server: Join room fail !");
                     }
                 }
                 if (sms.startsWith("list")) {
@@ -168,6 +176,7 @@ class ReadServer extends Thread {
                     }
                     DataOutputStream dos = new DataOutputStream(server.getOutputStream());
                     dos.writeUTF(smsList + "\n");
+                    System.out.println("Server: " + smsList + "\n");
                 }
                 if (sms.startsWith("leave")) {
                     for (Room room : Server.listRoom) {
@@ -187,6 +196,7 @@ class ReadServer extends Thread {
                                         }
                                     }
                                 }
+                                System.out.println("Server: " + item.getName() + " has left room :"+room.getName());
                                 break;
                             }
                         }
@@ -199,9 +209,9 @@ class ReadServer extends Thread {
                             if (player.getSocket().getPort() == server.getPort()) {
                                 for (Player player1 : room.getPlayer()) {
                                     DataOutputStream dos = new DataOutputStream(player1.getSocket().getOutputStream());
-                                    dos.writeUTF("(Send)" + player.getName() + " : " + sms.substring(6) + "\n");
-                                    System.out.println("send message success:" + player.getName() + " , " + sms.substring(6));
+                                    dos.writeUTF("(Send)" + player.getName() + " : " + sms.substring(6) + "\n");             
                                 }
+                                System.out.println("Server: (Send)" + player.getName() + " : " + sms.substring(6));
                             }
                         }
                     }
@@ -215,6 +225,8 @@ class ReadServer extends Thread {
                                 room.setStatus(1);
                                 check = true;
                                 String score = "(scoreboard)";
+                                String playerName = "(PlayerName)";
+                                String playerName1= "";
                                 String turn = "(turn)" + room.getPlayer().get(0).getName();
                                 String round = "(round)" + room.getPlayer().get(0).getName();
                                 room.getPlayer().get(0).setStatus(InRound);
@@ -223,16 +235,22 @@ class ReadServer extends Thread {
                                     dos = new DataOutputStream(player1.getSocket().getOutputStream());
                                     dos.writeUTF("start");
                                     score += player1.getName() + " : " + player1.getScore() + "_";
-                                    System.out.println("start game success:" + player1.getName() + " , " + room.getName());
+                                    playerName1+=player1.getName()+ " ";
                                 }
                                 for (Player item : room.getPlayer()) {
                                     dos = new DataOutputStream(item.getSocket().getOutputStream());
+                                    dos.writeUTF(playerName + item.getName());
                                     dos.writeUTF(score);
                                     dos.writeUTF(turn);
                                     dos.writeUTF(round);
                                 }
                                 dos = new DataOutputStream(room.getPlayer().get(0).getSocket().getOutputStream());
                                 dos.writeUTF("(package)");
+                                System.out.println("Server: Start game successfully !");
+                                System.out.println("Server: (RoomName)"+room.getName());
+                                System.out.println("Server: (ScoreBoard)"+score);
+                                System.out.println("Server: (PlayerRound)"+room.getPlayer().get(0).getName());
+                                System.out.println("Server: (PlayerTurn)"+room.getPlayer().get(0).getName());
                                 break;
                             }
                         }
@@ -240,7 +258,7 @@ class ReadServer extends Thread {
                     if (check == false) {
                         DataOutputStream dos = new DataOutputStream(server.getOutputStream());
                         dos.writeUTF("(Send)Start room fail");
-                        System.out.println("Client start room fail !");
+                        System.out.println("Server: Start room fail !");
                     }
                 }
                 if (sms.startsWith("(package)")) {
@@ -248,7 +266,6 @@ class ReadServer extends Thread {
                     Random generator = new Random();
                     dos = new DataOutputStream(server.getOutputStream());
                     dos.writeUTF("done");
-                    System.out.println("Send message done ");
                     for (Room room : Server.listRoom) {
                         for (Player player : room.getPlayer()) {
                             if (player.getSocket().getPort() == server.getPort() && room.getStatus() == 1) {
@@ -297,16 +314,20 @@ class ReadServer extends Thread {
                                         room.getListQuiz30().remove(random);
                                         break;
                                 }
+                                int quiznum = 5 - player.getListQuiz().size();
                                 for (Player item : room.getPlayer()) {
                                     dos = new DataOutputStream(item.getSocket().getOutputStream());
-                                    int quiznum = 5 - player.getListQuiz().size();
+                                    dos.writeUTF("(Time)");
                                     dos.writeUTF("(PackagePoint)" + sms.substring(9));
                                     dos.writeUTF("(QuizNumber)Question " + " " + quiznum + ":");
                                     dos.writeUTF("(QuizPoint)" + player.getListQuiz().get(0).getScore() + " points");
                                 }
+                                System.out.println("Server: " + "(PackagePoint)" + sms.substring(9));
+                                System.out.println("Server: " + "(QuizNumber)Question " + " " + quiznum + ":");
+                                System.out.println("Server: " + "(QuizPoint)" + player.getListQuiz().get(0).getScore() + " points");
                                 dos = new DataOutputStream(server.getOutputStream());
                                 dos.writeUTF("(HopeStarOption)");
-
+                                System.out.println("Server: (HopeStarOption)"+player.getName());
                                 break;
                             }
                         }
@@ -324,12 +345,15 @@ class ReadServer extends Thread {
                                         break;
                                 }
                                 dos = new DataOutputStream(player.getSocket().getOutputStream());
-                                dos.writeUTF("(AnswerButton)");
+                                dos.writeUTF("(AnswerButton)" + player.getListQuiz().get(0).getTime());
+                                System.out.println("Server: (AnswerTime)"+player.getListQuiz().get(0).getTime());
                                 for (Player item : room.getPlayer()) {
                                     dos = new DataOutputStream(item.getSocket().getOutputStream());
                                     dos.writeUTF(sms);
                                     dos.writeUTF("(QuizQuestion)" + player.getListQuiz().get(0).getQuestion());
                                 }
+                                System.out.println("Server: " + sms);
+                                System.out.println("Server: " + "(QuizQuestion)" + player.getListQuiz().get(0).getQuestion());
                                 break;
                             }
                         }
@@ -371,6 +395,7 @@ class ReadServer extends Thread {
                                         } else {
                                             dos = new DataOutputStream(playerInTurn.getSocket().getOutputStream());
                                             dos.writeUTF("(RemoveAnswerButton)");
+                                            System.out.println("Server: (RemoveAnswerButton)");
                                             room.getPlayer().get(playerInTurnIndex).setScore(playerInTurnScore + questionScore);
                                         }
                                     } else {
@@ -379,6 +404,7 @@ class ReadServer extends Thread {
                                         } else {
                                             dos = new DataOutputStream(playerInTurn.getSocket().getOutputStream());
                                             dos.writeUTF("(RemoveAnswerButton)");
+                                            System.out.println("Server: (RemoveAnswerButton)");
                                             room.getPlayer().get(playerInTurnIndex).setScore(playerInTurnScore + questionScore);
                                             room.getPlayer().get(playerInRoundIndex).setScore(playerInRoundScore - questionScore);
                                         }
@@ -397,22 +423,29 @@ class ReadServer extends Thread {
                                         dos.writeUTF("(CorrectAnswer)" + correctAnswer);
                                         dos.writeUTF("(HopeStar)No");
                                     }
+                                    System.out.println("Server: (LastAnswer)" + answer + " (Correct)");
+                                    System.out.println("Server: (CorrectAnswer)" + correctAnswer);
                                     if (playerInRound.getListQuiz().size() > 0) {
+                                        int quiznum = 5 - playerInRound.getListQuiz().size();
+                                        turn = "(turn)" + playerInRound.getName();
                                         for (Player item : room.getPlayer()) {
-                                            int quiznum = 5 - playerInRound.getListQuiz().size();
-                                            turn = "(turn)" + playerInRound.getName();
                                             dos = new DataOutputStream(item.getSocket().getOutputStream());
                                             dos.writeUTF("(QuizNumber)Question " + quiznum + ":");
                                             dos.writeUTF("(QuizPoint)" + playerInRound.getListQuiz().get(0).getScore() + " points");
                                             dos.writeUTF(turn);
                                         }
+                                        System.out.println("Server: " + "(QuizNumber)Question " + quiznum + ":");
+                                        System.out.println("Server: " + "(QuizPoint)" + playerInRound.getListQuiz().get(0).getScore() + " points");
+                                        System.out.println("Server: " + turn);
                                         if (playerInRound.isIsHopestar()) {
                                             for (Player item : room.getPlayer()) {
                                                 dos = new DataOutputStream(item.getSocket().getOutputStream());
                                                 dos.writeUTF("(QuizQuestion)" + playerInRound.getListQuiz().get(0).getQuestion());
                                             }
+                                            System.out.println("Server: " + "(QuizQuestion)" + playerInRound.getListQuiz().get(0).getQuestion());
                                             dos = new DataOutputStream(playerInRound.getSocket().getOutputStream());
-                                            dos.writeUTF("(AnswerButton)");
+                                            dos.writeUTF("(AnswerButton)" + playerInRound.getListQuiz().get(0).getTime());
+                                            System.out.println("Server: (AnswerButton)");
                                         } else {
                                             for (Player item : room.getPlayer()) {
                                                 dos = new DataOutputStream(item.getSocket().getOutputStream());
@@ -421,16 +454,25 @@ class ReadServer extends Thread {
                                             dos = new DataOutputStream(playerInRound.getSocket().getOutputStream());
                                             dos.writeUTF("(RemoveAnswerButton)");
                                             dos.writeUTF("(HopeStarOption)");
+                                            System.out.println("Server: (RemoveQuestion)");
+                                            System.out.println("Server: (RemoveAnswerButton)");
+                                            System.out.println("Server: (HopeStarOption)");
                                         }
                                     } else {
                                         room.getPlayer().get(playerInRoundIndex).setStatus(FinishRound);
                                         dos = new DataOutputStream(playerInRound.getSocket().getOutputStream());
                                         dos.writeUTF("(RemoveAnswerButton)");
+                                        System.out.println("Server: (RemoveAnswerButton)");
                                         check = true;
                                         for (Player item : room.getPlayer()) {
                                             dos = new DataOutputStream(item.getSocket().getOutputStream());
                                             dos.writeUTF("(RemoveQuestion)");
+                                            dos.writeUTF("(PackagePoint)");
+                                            dos.writeUTF("(QuizNumber)Question ");
+                                            dos.writeUTF("(QuizPoint)");
+                                            dos.writeUTF("(HopeStar)No");
                                         }
+                                        System.out.println("Server: (RemoveQuestion)");
                                         for (Player item : room.getPlayer()) {
                                             if (item.getStatus() == NotInRound) {
                                                 String round = "(round)" + item.getName();
@@ -440,9 +482,12 @@ class ReadServer extends Thread {
                                                     dos.writeUTF(turn);
                                                     dos.writeUTF(round);
                                                 }
+                                                System.out.println("Server: " + round);
+                                                System.out.println("Server: " + turn);
                                                 item.setStatus(InRound);
                                                 dos = new DataOutputStream(item.getSocket().getOutputStream());
                                                 dos.writeUTF("(package)");
+                                                System.out.println("Server: (package)");
                                                 check = false;
                                                 break;
                                             }
@@ -452,6 +497,7 @@ class ReadServer extends Thread {
                                                 dos = new DataOutputStream(item.getSocket().getOutputStream());
                                                 dos.writeUTF("(GameFinish)");
                                             }
+                                            System.out.println("Server: (GameFinish)");
                                             int temp;
                                             String name;
                                             for (int i = 0; i <= 2; i++) {
@@ -490,16 +536,20 @@ class ReadServer extends Thread {
                                         }
                                         dos = new DataOutputStream(playerInRound.getSocket().getOutputStream());
                                         dos.writeUTF("(RemoveAnswerButton)");
+                                        System.out.println("Server: (RemoveAnswerButton)");
                                         turn = "(turn)";
                                         for (Player item : room.getPlayer()) {
                                             if (item.equals(playerInRound) == false) {
                                                 dos = new DataOutputStream(item.getSocket().getOutputStream());
                                                 dos.writeUTF("(AnswerChoice)");
+                                                System.out.println("Server: (AnswerChoice)"+item.getName());
                                             }
                                             dos = new DataOutputStream(item.getSocket().getOutputStream());
                                             dos.writeUTF("(LastAnswer)" + answer + " (Wrong)");
                                             dos.writeUTF(turn);
                                         }
+                                        System.out.println("Server: " + "(LastAnswer)" + answer + " (Wrong)");
+                                        System.out.println("Server: " + turn);
                                     } else {
                                         room.getPlayer().get(playerInTurnIndex).setScore(playerInTurnScore - questionScore / 2);
                                         for (Player item : room.getPlayer()) {
@@ -509,8 +559,10 @@ class ReadServer extends Thread {
                                             dos = new DataOutputStream(item.getSocket().getOutputStream());
                                             dos.writeUTF(score);
                                         }
+                                        System.out.println("Server: " + score);
                                         dos = new DataOutputStream(playerInTurn.getSocket().getOutputStream());
                                         dos.writeUTF("(RemoveAnswerButton)");
+                                        System.out.println("Server: (RemoveAnswerButton)");
                                         room.getPlayer().get(playerInRoundIndex).getListQuiz().remove(0);
                                         for (Player item : room.getPlayer()) {
                                             dos = new DataOutputStream(item.getSocket().getOutputStream());
@@ -518,29 +570,38 @@ class ReadServer extends Thread {
                                             dos.writeUTF("(CorrectAnswer)" + correctAnswer);
                                             dos.writeUTF("(HopeStar)No");
                                         }
+                                        System.out.println("Server: " + "(LastAnswer)" + answer + " (Wrong)");
+                                        System.out.println("Server: " + "(CorrectAnswer)" + correctAnswer);
                                         if (playerInRound.getListQuiz().size() > 0) {
                                             turn = "(turn)" + playerInRound.getName();
+                                            int quiznum = 5 - playerInRound.getListQuiz().size();
                                             for (Player item : room.getPlayer()) {
-                                                int quiznum = 5 - playerInRound.getListQuiz().size();
                                                 dos = new DataOutputStream(item.getSocket().getOutputStream());
                                                 dos.writeUTF("(QuizNumber)Question " + quiznum + ":");
                                                 dos.writeUTF("(QuizPoint)" + playerInRound.getListQuiz().get(0).getScore() + " points");
                                                 dos.writeUTF(turn);
                                             }
+                                            System.out.println("Server: " + "(QuizNumber)Question " + quiznum + ":");
+                                            System.out.println("Server: " + "(QuizPoint)" + playerInRound.getListQuiz().get(0).getScore() + " points");
+                                            System.out.println("Server: " + turn);
                                             if (playerInRound.isIsHopestar()) {
                                                 for (Player item : room.getPlayer()) {
                                                     dos = new DataOutputStream(item.getSocket().getOutputStream());
                                                     dos.writeUTF("(QuizQuestion)" + playerInRound.getListQuiz().get(0).getQuestion());
                                                 }
+                                                System.out.println("Server: " + "(QuizQuestion)" + playerInRound.getListQuiz().get(0).getQuestion());
                                                 dos = new DataOutputStream(playerInRound.getSocket().getOutputStream());
-                                                dos.writeUTF("(AnswerButton)");
+                                                dos.writeUTF("(AnswerButton)" + playerInRound.getListQuiz().get(0).getTime());
+                                                System.out.println("Server: (AnswerButton)");
                                             } else {
                                                 for (Player item : room.getPlayer()) {
                                                     dos = new DataOutputStream(item.getSocket().getOutputStream());
                                                     dos.writeUTF("(RemoveQuestion)");
                                                 }
+                                                System.out.println("Server: (RemoveQuestion)");
                                                 dos = new DataOutputStream(playerInRound.getSocket().getOutputStream());
                                                 dos.writeUTF("(HopeStarOption)");
+                                                System.out.println("Server: (HopeStarOption)");
                                             }
                                         } else {
                                             room.getPlayer().get(playerInRoundIndex).setStatus(FinishRound);
@@ -548,7 +609,12 @@ class ReadServer extends Thread {
                                             for (Player item : room.getPlayer()) {
                                                 dos = new DataOutputStream(item.getSocket().getOutputStream());
                                                 dos.writeUTF("(RemoveQuestion)");
+                                                dos.writeUTF("(PackagePoint)");
+                                                dos.writeUTF("(QuizNumber)Question ");
+                                                dos.writeUTF("(QuizPoint)");
+                                                dos.writeUTF("(HopeStar)No");
                                             }
+                                            System.out.println("Server: (RemoveQuestion)");
                                             for (Player item : room.getPlayer()) {
                                                 if (item.getStatus() == NotInRound) {
                                                     turn = "(turn)" + item.getName();
@@ -558,9 +624,12 @@ class ReadServer extends Thread {
                                                         dos.writeUTF(turn);
                                                         dos.writeUTF(round);
                                                     }
+                                                    System.out.println("Server: " + turn);
+                                                    System.out.println("Server: " + round);
                                                     item.setStatus(InRound);
                                                     dos = new DataOutputStream(item.getSocket().getOutputStream());
                                                     dos.writeUTF("(package)");
+                                                    System.out.println("Server: (package)");
                                                     check = false;
                                                     break;
                                                 }
@@ -570,6 +639,7 @@ class ReadServer extends Thread {
                                                     dos = new DataOutputStream(item.getSocket().getOutputStream());
                                                     dos.writeUTF("(GameFinish)");
                                                 }
+                                                System.out.println("Server: (GameFinish)");
                                                 int temp;
                                                 String name;
                                                 for (int i = 0; i <= 2; i++) {
@@ -590,6 +660,10 @@ class ReadServer extends Thread {
                                                         dos.writeUTF("(Name" + (i + 1) + ")" + room.getPlayer().get(i).getName());
                                                         dos.writeUTF("(Score" + (i + 1) + ")" + room.getPlayer().get(i).getScore());
                                                     }
+                                                }
+                                                for (int i = 0; i <= 2; i++) {
+                                                    System.out.println("(Name" + (i + 1) + ")" + room.getPlayer().get(i).getName());
+                                                    System.out.println("(Score" + (i + 1) + ")" + room.getPlayer().get(i).getScore());
                                                 }
                                                 room.setStatus(FinishPlay);
                                             }
@@ -630,7 +704,9 @@ class ReadServer extends Thread {
                                             dos.writeUTF(turn);
                                         }
                                         dos = new DataOutputStream(player.getSocket().getOutputStream());
-                                        dos.writeUTF("(AnswerButton)");
+                                        dos.writeUTF("(AnswerButton)15");
+                                        System.out.println("Server: " + turn);
+                                        System.out.println("Server: (AnswerTime)15");
                                         break;
                                     case "Deny":
                                         player.setIsDeny(true);
@@ -654,22 +730,28 @@ class ReadServer extends Thread {
                                                 dos.writeUTF("(CorrectAnswer)" + correctAnswer);
                                                 dos.writeUTF("(HopeStar)No");
                                             }
+                                            System.out.println("Server: " + "(CorrectAnswer)" + correctAnswer);
                                             if (playerInRound.getListQuiz().size() > 0) {
+                                                int quiznum = 5 - playerInRound.getListQuiz().size();
                                                 for (Player item : room.getPlayer()) {
-                                                    int quiznum = 5 - playerInRound.getListQuiz().size();
                                                     dos = new DataOutputStream(item.getSocket().getOutputStream());
                                                     turn = "(turn)" + playerInRound.getName();
                                                     dos.writeUTF(turn);
                                                     dos.writeUTF("(QuizNumber)Question " + quiznum + ":");
                                                     dos.writeUTF("(QuizPoint)" + playerInRound.getListQuiz().get(0).getScore() + " points");
                                                 }
+                                                System.out.println("Server: " + turn);
+                                                System.out.println("Server: " + "(QuizNumber)Question " + quiznum + ":");
+                                                System.out.println("Server: " + "(QuizPoint)" + playerInRound.getListQuiz().get(0).getScore() + " points");
                                                 if (playerInRound.isIsHopestar()) {
                                                     for (Player item : room.getPlayer()) {
                                                         dos = new DataOutputStream(item.getSocket().getOutputStream());
                                                         dos.writeUTF("(QuizQuestion)" + playerInRound.getListQuiz().get(0).getQuestion());
                                                     }
                                                     dos = new DataOutputStream(playerInRound.getSocket().getOutputStream());
-                                                    dos.writeUTF("(AnswerButton)");
+                                                    dos.writeUTF("(AnswerButton)" + playerInRound.getListQuiz().get(0).getTime());
+                                                    System.out.println("Server: " + "(QuizQuestion)" + playerInRound.getListQuiz().get(0).getQuestion());
+                                                    System.out.println("Server: (AnswerTime)"+playerInRound.getListQuiz().get(0).getTime());
                                                 } else {
                                                     for (Player item : room.getPlayer()) {
                                                         dos = new DataOutputStream(item.getSocket().getOutputStream());
@@ -677,16 +759,24 @@ class ReadServer extends Thread {
                                                     }
                                                     dos = new DataOutputStream(playerInRound.getSocket().getOutputStream());
                                                     dos.writeUTF("(HopeStarOption)");
+                                                    System.out.println("Server: (RemoveQuestion)");
+                                                    System.out.println("Server: (HopeStarOption)");
                                                 }
                                             } else {
                                                 room.getPlayer().get(playerInRoundIndex).setStatus(FinishRound);
                                                 dos = new DataOutputStream(playerInRound.getSocket().getOutputStream());
                                                 dos.writeUTF("(RemoveAnswerButton)");
+                                                System.out.println("Server: (RemoveAnswerButton)");
                                                 check = true;
                                                 for (Player item : room.getPlayer()) {
                                                     dos = new DataOutputStream(item.getSocket().getOutputStream());
                                                     dos.writeUTF("(RemoveQuestion)");
+                                                    dos.writeUTF("(PackagePoint)");
+                                                    dos.writeUTF("(QuizNumber)Question ");
+                                                    dos.writeUTF("(QuizPoint)");
+                                                    dos.writeUTF("(HopeStar)No");
                                                 }
+                                                System.out.println("Server: (RemoveQuestion)");
                                                 for (Player item : room.getPlayer()) {
                                                     if (item.getStatus() == NotInRound) {
                                                         turn = "(turn)" + item.getName();
@@ -700,6 +790,9 @@ class ReadServer extends Thread {
                                                         dos = new DataOutputStream(item.getSocket().getOutputStream());
                                                         dos.writeUTF("(package)");
                                                         check = false;
+                                                        System.out.println("Server: " + turn);
+                                                        System.out.println("Server: " + round);
+                                                        System.out.println("Server: (package)"+item.getName());
                                                         break;
                                                     }
                                                 }
@@ -708,6 +801,7 @@ class ReadServer extends Thread {
                                                         dos = new DataOutputStream(item.getSocket().getOutputStream());
                                                         dos.writeUTF("(GameFinish)");
                                                     }
+                                                    System.out.println("Server: (GameFinish)");
                                                     int temp;
                                                     String name;
                                                     for (int i = 0; i <= 2; i++) {
@@ -745,6 +839,32 @@ class ReadServer extends Thread {
                         }
                     }
                 }
+                if (sms.startsWith("(SetAnswerTextEmpty)")) {
+                    DataOutputStream dos;
+                    for (Room room : Server.listRoom) {
+                        for (Player player : room.getPlayer()) {
+                            if (player.getSocket().getPort() == server.getPort() && room.getStatus() == 1) {
+                                dos = new DataOutputStream(player.getSocket().getOutputStream());
+                                dos.writeUTF(sms);
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (sms.startsWith("(Time)")) {
+                    DataOutputStream dos;
+                    for (Room room : Server.listRoom) {
+                        for (Player player : room.getPlayer()) {
+                            if (player.getSocket().getPort() == server.getPort() && room.getStatus() == 1) {
+                                for (Player item : room.getPlayer()) {
+                                    dos = new DataOutputStream(item.getSocket().getOutputStream());
+                                    dos.writeUTF(sms);
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
                 if (sms.equals("(continue)")) {
                     DataOutputStream dos = new DataOutputStream(server.getOutputStream());
                     dos.writeUTF(sms);
@@ -777,11 +897,13 @@ class ReadServer extends Thread {
                                     }
                                 }
                             }
+                            System.out.println("Server: " + "(Send)" + item.getName() + " has left the room");
                             if (room.getStatus() == InPlay) {
                                 for (Player item1 : room.getPlayer()) {
                                     DataOutputStream dos = new DataOutputStream(item1.getSocket().getOutputStream());
                                     dos.writeUTF("(GameDisrupt)");
                                 }
+                                System.out.println("Server: (GameDisrupt)");
                                 room.setStatus(FinishPlay);
                             }
                             break;

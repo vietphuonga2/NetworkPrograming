@@ -12,6 +12,9 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.SwingConstants;
+import static olympia.Client.dout;
+import org.apache.commons.lang3.time.StopWatch;
 
 /**
  *
@@ -25,6 +28,8 @@ public class Client extends javax.swing.JFrame {
     static Socket s;
     static DataInputStream din;
     static DataOutputStream dout;
+    static StopWatch stopwatch;
+    static TimeProcess timeprocess;
 
     public Client() {
         initComponents();
@@ -50,6 +55,8 @@ public class Client extends javax.swing.JFrame {
         msgList = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setBounds(new java.awt.Rectangle(0, 0, 0, 0));
+        setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
         msgRoom.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         msgRoom.addActionListener(new java.awt.event.ActionListener() {
@@ -152,7 +159,7 @@ public class Client extends javax.swing.JFrame {
 
     private void msgJoinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_msgJoinActionPerformed
         try {
-            if (msgRoom.getText().length() > 0 && msgRoom.getText().charAt(0)!= ' ' && msgName.getText().length() > 0 && msgName.getText().charAt(0)!= ' ') {
+            if (msgRoom.getText().length() > 0 && msgRoom.getText().charAt(0) != ' ' && msgName.getText().length() > 0 && msgName.getText().charAt(0) != ' ') {
                 String msgout = "join_";
                 msgout = msgout.concat(msgRoom.getText().trim() + "_" + msgName.getText().trim());
                 dout.writeUTF(msgout);
@@ -177,7 +184,7 @@ public class Client extends javax.swing.JFrame {
 
     private void msgCreateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_msgCreateActionPerformed
         try {
-            if (msgRoom.getText().length() > 0 && msgRoom.getText().charAt(0)!= ' ' && msgName.getText().length() > 0 && msgName.getText().charAt(0)!= ' ') {
+            if (msgRoom.getText().length() > 0 && msgRoom.getText().charAt(0) != ' ' && msgName.getText().length() > 0 && msgName.getText().charAt(0) != ' ') {
                 String msgout = "create_";
                 msgout = msgout.concat(msgRoom.getText().trim() + "_" + msgName.getText().trim());
                 dout.writeUTF(msgout);
@@ -224,9 +231,10 @@ public class Client extends javax.swing.JFrame {
         });
         try {
             InetAddress addr = InetAddress.getByName("192.168.2.200");
-            s = new Socket(addr.getHostAddress(), 3000);
+            s = new Socket(InetAddress.getLocalHost(), 3000);
             din = new DataInputStream(s.getInputStream());
             dout = new DataOutputStream(s.getOutputStream());
+
             String msg = "";
             Game game = new Game();
             Gameplay gameplay = new Gameplay();
@@ -234,11 +242,12 @@ public class Client extends javax.swing.JFrame {
             Gamefinish gamefinish = new Gamefinish();
             gameplay.getMsgAnswer().setVisible(false);
             gameplay.getMsgAnswerAccept().setVisible(false);
-            gameplay.getMsgAnswerDeny().setVisible(false);
             gameplay.getMsgHopestarNo().setVisible(false);
             gameplay.getMsgHopestarYes().setVisible(false);
             gameplay.getMsgQuizHopeStar().setVisible(false);
             int count = 0;
+            stopwatch = new StopWatch();
+            timeprocess = new TimeProcess();
             while (!msg.equals("exit")) {
                 msg = din.readUTF();
 
@@ -248,13 +257,13 @@ public class Client extends javax.swing.JFrame {
                         client.setVisible(false);
                         count = 1;
                     }
-                    if( msg.startsWith("(List)")){
+                    if (msg.startsWith("(List)")) {
                         msgArea.setText(msgArea.getText() + " Server:\t" + msg.substring(6));
                     }
-                    if(msg.equals("(Create)Fail")){
+                    if (msg.equals("(Create)Fail")) {
                         msgArea.setText(msgArea.getText() + " Server:\t" + "Create room fail !\n");
                     }
-                    if(msg.equals("(Join)Fail")){
+                    if (msg.equals("(Join)Fail")) {
                         msgArea.setText(msgArea.getText() + " Server:\t" + "Join room fail !\n");
                     }
                 } else if (count == 1) {
@@ -263,13 +272,12 @@ public class Client extends javax.swing.JFrame {
                         game.setVisible(false);
                         client.setVisible(true);
                         count = 0;
-                    } 
+                    }
                     if (msg.equals("start")) {
                         game.setVisible(false);
                         gameplay.setVisible(true);
                         gameplay.getMsgAnswer().setVisible(false);
                         gameplay.getMsgAnswerAccept().setVisible(false);
-                        gameplay.getMsgAnswerDeny().setVisible(false);
                         gameplay.getMsgHopestarNo().setVisible(false);
                         gameplay.getMsgHopestarYes().setVisible(false);
                         gameplay.getMsgQuizHopeStar().setVisible(false);
@@ -280,26 +288,29 @@ public class Client extends javax.swing.JFrame {
                         gameplay.getMsgQuizPoint().setText("");
                         gameplay.getMsgPackage().setText("");
                         count = 2;
-                    } 
-                    if(msg.startsWith("(Player1)")){
+                    }
+                    if (msg.startsWith("(Player1)")) {
                         game.getMsgPlayer1().setText(msg.substring(9));
                     }
-                    if(msg.startsWith("(Player2)")){
+                    if (msg.startsWith("(Player2)")) {
                         game.getMsgPlayer2().setText(msg.substring(9));
                     }
-                    if(msg.startsWith("(Player3)")){
+                    if (msg.startsWith("(Player3)")) {
                         game.getMsgPlayer3().setText(msg.substring(9));
                     }
-                    if(msg.startsWith("(Welcome)")){
+                    if (msg.startsWith("(Welcome)")) {
                         game.getMsgArea().setText(msg.substring(9));
                     }
-                    if(msg.startsWith("(Send)")){
+                    if (msg.startsWith("(Send)")) {
                         game.getMsgArea().setText(game.getMsgArea().getText() + msg.substring(6));
                     }
-                    if(msg.startsWith("(RoomName)")){
+                    if (msg.startsWith("(RoomName)")) {
                         game.getMsgRoomName().setText(msg.substring(10));
                     }
                 } else if (count == 2) {
+                    if (msg.startsWith("(PlayerName)")) {
+                        gameplay.getMsgPlayerName().setText(msg.substring(12));
+                    }
                     if (msg.startsWith("(scoreboard)")) {
                         msg = msg.substring(12);
                         String[] msgScore = msg.split("_");
@@ -322,8 +333,10 @@ public class Client extends javax.swing.JFrame {
                     if (msg.startsWith("(QuizPoint)")) {
                         gameplay.getMsgQuizPoint().setText(msg.substring(11));
                     }
+
                     if (msg.startsWith("(QuizQuestion)")) {
                         String question = msg.substring(14);
+
                         StringBuilder str = new StringBuilder(question);
                         if (str.length() > 68 && str.length() <= 136) {
                             for (int i = 60; i <= 68; i++) {
@@ -372,8 +385,17 @@ public class Client extends javax.swing.JFrame {
                         gamepackage.setVisible(true);
                         count = 3;
                     }
-                    if (msg.equals("(AnswerButton)")) {
+                    if (msg.startsWith("(AnswerButton)")) {
                         gameplay.getMsgAnswer().setVisible(true);
+                        timeprocess = new TimeProcess(Long.parseLong(msg.substring(14)), "(AnswerButton)");
+                        timeprocess.start();
+                        System.out.println("Stopwatch starts");
+                    }
+                    if (msg.startsWith("(Time)")) {
+                        gameplay.getMsgTime().setText(msg.substring(6));
+                    }
+                    if (msg.startsWith("(SetAnswerTextEmpty)")) {
+                        gameplay.getMsgAnswerText().setText(msg.substring(20));
                     }
                     if (msg.equals("(HopeStarOption)")) {
                         gameplay.getMsgHopestarNo().setVisible(true);
@@ -400,11 +422,13 @@ public class Client extends javax.swing.JFrame {
                     }
                     if (msg.equals("(AnswerChoice)")) {
                         gameplay.getMsgAnswerAccept().setVisible(true);
-                        gameplay.getMsgAnswerDeny().setVisible(true);
+                        timeprocess = new TimeProcess(5, "(AnswerChoice)");
+                        timeprocess.start();
                     }
                     if (msg.equals("(AnswerChoice)Done")) {
                         gameplay.getMsgAnswerAccept().setVisible(false);
-                        gameplay.getMsgAnswerDeny().setVisible(false);
+                        timeprocess.terminate();
+                        System.out.println("Stopwatch terminated");
                     }
                     if (msg.equals("(RemoveQuestion)")) {
                         gameplay.getMsgQuizQuestion().setText("");
@@ -472,4 +496,70 @@ public class Client extends javax.swing.JFrame {
     private javax.swing.JTextField msgName;
     private javax.swing.JTextField msgRoom;
     // End of variables declaration//GEN-END:variables
+}
+
+class TimeProcess extends Thread {
+
+    private StopWatch stopwatch;
+    private long time;
+    private String action;
+    private volatile boolean running = true;
+
+    public TimeProcess() {
+        running = true;
+    }
+
+    public TimeProcess(long time) {
+        this.time = time;
+        running = true;
+    }
+
+    public TimeProcess(long time, String action) {
+        running = true;
+        this.time = time;
+        this.action = action;
+    }
+
+    public void terminate() {
+        running = false;
+    }
+
+    @Override
+    public void run() {
+        try {
+            stopwatch = new StopWatch();
+            stopwatch.start();
+            long check = 0;
+            boolean flag = true;
+            while (running) {
+                if (flag == true) {
+                    dout.writeUTF("(Time)" + (time - stopwatch.getTime() / 1000) + " (s)");
+                    check = stopwatch.getTime() / 1000;
+                }
+                if (check == stopwatch.getTime() / 1000) {
+                    flag = false;
+                } else {
+                    flag = true;
+                }
+                if (stopwatch.getTime() > (time * 1000)) {
+                    switch (action) {
+                        case "(AnswerButton)":
+                            dout.writeUTF("(Answer)");
+                            break;
+                        case "(AnswerChoice)":
+                            dout.writeUTF("(AnswerChoice)Deny");
+                            break;
+                    }
+                    dout.writeUTF("(Time)");
+                    stopwatch.reset();
+                    break;
+                }
+            }
+            stopwatch.reset();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }
